@@ -59,6 +59,9 @@ def dashboard():
             "promotion": int(request.form["promotion"]),
             "inventory": int(request.form["inventory"]),
         })
+        horizon_days = int(request.form["horizon_days"])
+        if horizon_days not in {7, 14, 30, 60}:
+            raise ValueError("Selecciona un horizonte de 7, 14, 30 o 60 días.")
         if not math.isfinite(product_data["price"]) or product_data["price"] < 0 or product_data["inventory"] < 0:
             raise ValueError("El precio y el inventario deben ser mayores o iguales a cero.")
         if product_data["promotion"] not in {0, 1}:
@@ -70,7 +73,7 @@ def dashboard():
 
     # PREDICCION DEL MODELO
 
-    predictions = forecast_next_days(product_data)
+    predictions = forecast_next_days(product_data, days=horizon_days)
 
     dates = [p["date"] for p in predictions]
     sales = [p["predicted_sales"] for p in predictions]
@@ -163,6 +166,7 @@ def dashboard():
         remaining_inventory=round(remaining_inventory, 2),
         revenue_prediction=round(revenue_prediction, 2),
         demand_peak=round(demand_peak, 2),
+        horizon_days=horizon_days,
         alerts=alerts,
         recommendations=recommendations
     )

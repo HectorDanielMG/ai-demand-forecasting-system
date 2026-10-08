@@ -1,6 +1,6 @@
 # AI Demand Forecast
 
-Aplicación web de pronóstico de demanda e inventario. Usa un modelo XGBoost para estimar ventas diarias durante los próximos 30 días a partir del producto, su categoría, la región, la tienda, el precio, la promoción y el inventario actual.
+Aplicación web de pronóstico de demanda e inventario. Usa un modelo XGBoost para estimar ventas diarias durante los próximos 7, 14, 30 o 60 días, a partir del producto, su categoría, la región, la tienda, el precio, la promoción y el inventario actual. La proyección comienza mañana para representar días futuros completos.
 
 ## Ejecutar localmente
 
@@ -27,7 +27,8 @@ El entrenamiento usa `data/complex_sales_dataset.csv` y guarda el modelo en `mod
 
 1. Selecciona producto, categoría, región y tienda.
 2. Indica precio, inventario disponible y si hay una promoción activa.
-3. Genera el pronóstico para consultar demanda diaria, demanda total, ingresos estimados, inventario restante y alertas.
+3. Elige el horizonte de 7, 14, 30 o 60 días.
+4. Genera el pronóstico para consultar demanda diaria, demanda total, ingresos estimados, inventario restante y alertas del periodo elegido.
 
 La categoría debe corresponder al producto. El sistema valida las selecciones y evita aceptar precios o inventarios negativos. Las predicciones de ventas se limitan a cero como mínimo, ya que no existe demanda negativa.
 

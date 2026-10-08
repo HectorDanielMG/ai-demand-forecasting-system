@@ -6,13 +6,13 @@ model = joblib.load("model/demand_model.pkl")
 
 def forecast_next_days(product_data, days=30):
 
-    today = datetime.today()
+    first_day = datetime.today() + timedelta(days=1)
 
     predictions = []
 
     for i in range(days):
 
-        future_date = today + timedelta(days=i)
+        future_date = first_day + timedelta(days=i)
 
         input_data = product_data.copy()
 
