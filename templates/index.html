@@ -216,6 +216,10 @@ Configuración de Predicción
 
 </h4>
 
+{% if error %}
+<div class="alert alert-danger" role="alert">{{ error }}</div>
+{% endif %}
+
 <form action="/dashboard" method="POST">
 
 <div class="mb-3">
@@ -242,8 +246,11 @@ Configuración de Predicción
 
 <select class="form-control" name="category" required>
 
-<option>Electronica</option>
+<option value="">Selecciona categoría</option>
 <option>Accesorios</option>
+<option>Audio</option>
+<option>Computación</option>
+<option>Pantallas</option>
 
 </select>
 
@@ -255,8 +262,9 @@ Configuración de Predicción
 
 <label>Región</label>
 
-<select class="form-control" name="region">
+<select class="form-control" name="region" required>
 
+<option value="">Selecciona región</option>
 <option>Norte</option>
 <option>Centro</option>
 <option>Sur</option>
@@ -269,8 +277,9 @@ Configuración de Predicción
 
 <label>Tienda</label>
 
-<select class="form-control" name="store">
+<select class="form-control" name="store" required>
 
+<option value="">Selecciona tienda</option>
 <option>Tienda 1</option>
 <option>Tienda 2</option>
 <option>Tienda 3</option>
@@ -288,7 +297,7 @@ Configuración de Predicción
 
 <label>Precio</label>
 
-<input class="form-control" type="number" step="0.01" name="price" required>
+<input class="form-control" type="number" min="0" step="0.01" name="price" required>
 
 </div>
 
@@ -311,7 +320,7 @@ Configuración de Predicción
 
 <label>Inventario actual</label>
 
-<input class="form-control" type="number" name="inventory" required>
+<input class="form-control" type="number" min="0" step="1" name="inventory" required>
 
 </div>
 

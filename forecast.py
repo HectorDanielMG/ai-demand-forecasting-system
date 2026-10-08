@@ -22,11 +22,12 @@ def forecast_next_days(product_data, days=30):
 
         df = pd.DataFrame([input_data])
 
-        pred = model.predict(df)[0]
+        # La demanda representa unidades vendidas y no puede ser negativa.
+        pred = max(0.0, float(model.predict(df)[0]))
 
         predictions.append({
             "date": future_date.strftime("%Y-%m-%d"),
-            "predicted_sales": float(pred)
+            "predicted_sales": pred
         })
 
     return predictions

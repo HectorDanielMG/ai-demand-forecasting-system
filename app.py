@@ -1,35 +1,45 @@
+import csv
+import math
+from pathlib import Path
+
 from flask import Flask, render_template, request
 from forecast import forecast_next_days
 
 app = Flask(__name__)
 
-# MAPEO DE VALORES DEL FORMULARIO
-
-product_map = {
-    "Laptop": 0,
-    "Mouse": 1,
-    "Teclado": 2,
-    "Monitor": 3,
-    "Audifonos": 4
+ROOT = Path(__file__).resolve().parent
+DATASET_PATH = ROOT / "data" / "complex_sales_dataset.csv"
+FORM_VALUES = {
+    "product": {"Laptop": "laptop", "Mouse": "mouse", "Teclado": "keyboard", "Monitor": "monitor", "Audifonos": "headphones"},
+    "category": {"Accesorios": "accessories", "Audio": "audio", "Computación": "computers", "Pantallas": "displays"},
+    "region": {"Centro": "center", "Norte": "north", "Sur": "south"},
+    "store": {f"Tienda {number}": f"store_{number}" for number in range(1, 5)},
 }
 
-category_map = {
-    "Electronica": 0,
-    "Accesorios": 1
+
+def load_category_codes() -> dict[str, dict[str, int]]:
+    """Replica el orden alfabético que LabelEncoder usa durante el entrenamiento."""
+    categories = {column: set() for column in FORM_VALUES}
+    with DATASET_PATH.open(encoding="utf-8", newline="") as dataset:
+        for row in csv.DictReader(dataset):
+            for column in categories:
+                categories[column].add(row[column])
+    return {column: {value: index for index, value in enumerate(sorted(values))}
+            for column, values in categories.items()}
+
+
+CATEGORY_CODES = load_category_codes()
+PRODUCT_CATEGORY = {
+    "Laptop": "Computación", "Mouse": "Accesorios", "Teclado": "Accesorios",
+    "Monitor": "Pantallas", "Audifonos": "Audio",
 }
 
-region_map = {
-    "Norte": 0,
-    "Centro": 1,
-    "Sur": 2
-}
 
-store_map = {
-    "Tienda 1": 0,
-    "Tienda 2": 1,
-    "Tienda 3": 2,
-    "Tienda 4": 3
-}
+def form_code(column: str, selected: str) -> int:
+    value = FORM_VALUES[column].get(selected)
+    if value is None or value not in CATEGORY_CODES[column]:
+        raise ValueError("Selecciona una opción válida para todos los campos.")
+    return CATEGORY_CODES[column][value]
 
 
 @app.route("/")
@@ -39,18 +49,24 @@ def home():
 
 @app.route("/dashboard", methods=["POST"])
 def dashboard():
-
-    # DATOS DEL USUARIO
-
-    product_data = {
-        "product": product_map[request.form["product"]],
-        "category": category_map[request.form["category"]],
-        "region": region_map[request.form["region"]],
-        "store": store_map[request.form["store"]],
-        "price": float(request.form["price"]),
-        "promotion": int(request.form["promotion"]),
-        "inventory": int(request.form["inventory"])
-    }
+    try:
+        product_data = {
+            column: form_code(column, request.form[column])
+            for column in FORM_VALUES
+        }
+        product_data.update({
+            "price": float(request.form["price"]),
+            "promotion": int(request.form["promotion"]),
+            "inventory": int(request.form["inventory"]),
+        })
+        if not math.isfinite(product_data["price"]) or product_data["price"] < 0 or product_data["inventory"] < 0:
+            raise ValueError("El precio y el inventario deben ser mayores o iguales a cero.")
+        if product_data["promotion"] not in {0, 1}:
+            raise ValueError("La promoción debe ser Sí o No.")
+        if request.form["category"] != PRODUCT_CATEGORY[request.form["product"]]:
+            raise ValueError("La categoría seleccionada no corresponde al producto.")
+    except (KeyError, TypeError, ValueError) as exc:
+        return render_template("index.html", error=str(exc) or "Revisa los datos ingresados."), 400
 
     # PREDICCION DEL MODELO
 
