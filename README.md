@@ -21,7 +21,9 @@ Abre [http://127.0.0.1:5000](http://127.0.0.1:5000). El proyecto incluye el mode
 python train_model.py
 ```
 
-El entrenamiento usa `data/complex_sales_dataset.csv` y guarda el modelo en `model/demand_model.pkl`. Las categorías se codifican en orden alfabético; la aplicación obtiene los mismos códigos del conjunto de datos para que las predicciones usen la codificación aprendida.
+El entrenamiento usa `data/complex_sales_dataset.csv` y guarda el modelo de producción en `model/demand_model.pkl`. Antes de entrenar el artefacto final, reserva el 20% de las fechas más recientes como prueba, entrena una copia con el periodo anterior y calcula MAE, RMSE y WAPE. Las métricas y el rango evaluado se guardan en `model/evaluation.json` y aparecen en el tablero. Las categorías se codifican en orden alfabético; la aplicación obtiene los mismos códigos del conjunto de datos para mantener la codificación alineada.
+
+La separación por fecha simula mejor un pronóstico real que una división aleatoria: el modelo se evalúa con registros posteriores a los que vio durante esa fase. Después, el modelo que usa la aplicación se reentrena con todo el histórico. MAE y RMSE se expresan en unidades de venta; WAPE expresa el error absoluto total como porcentaje de la demanda real del periodo de prueba. Vuelve a ejecutar `python train_model.py` después de cambiar los datos para actualizar tanto el modelo como sus métricas.
 
 ## Uso
 

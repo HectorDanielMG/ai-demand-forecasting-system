@@ -227,6 +227,23 @@ transform:scale(1.05);
 
 </div>
 
+{% if evaluation %}
+<div class="card p-4 mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+    <div>
+      <h5 class="mb-1">Evaluación histórica del modelo</h5>
+      <small class="text-secondary">Prueba temporal: {{ evaluation.test_start }} a {{ evaluation.test_end }} · {{ evaluation.test_rows }} registros</small>
+    </div>
+    <small class="text-secondary">El modelo de producción se entrena con todo el histórico.</small>
+  </div>
+  <div class="row text-center">
+    <div class="col-md-4"><div class="kpi-title">MAE · error medio</div><strong>{{ evaluation.metrics.mae }}</strong> unidades</div>
+    <div class="col-md-4"><div class="kpi-title">RMSE · error cuadrático</div><strong>{{ evaluation.metrics.rmse }}</strong> unidades</div>
+    <div class="col-md-4"><div class="kpi-title">WAPE · error porcentual</div><strong>{{ evaluation.metrics.wape_percent if evaluation.metrics.wape_percent is not none else "No disponible" }}{% if evaluation.metrics.wape_percent is not none %}%{% endif %}</strong></div>
+  </div>
+</div>
+{% endif %}
+
 <!-- GRAFICA -->
 
 <div class="chart-container mb-4">

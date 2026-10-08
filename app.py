@@ -1,4 +1,5 @@
 import csv
+import json
 import math
 from pathlib import Path
 
@@ -9,6 +10,7 @@ app = Flask(__name__)
 
 ROOT = Path(__file__).resolve().parent
 DATASET_PATH = ROOT / "data" / "complex_sales_dataset.csv"
+EVALUATION_PATH = ROOT / "model" / "evaluation.json"
 FORM_VALUES = {
     "product": {"Laptop": "laptop", "Mouse": "mouse", "Teclado": "keyboard", "Monitor": "monitor", "Audifonos": "headphones"},
     "category": {"Accesorios": "accessories", "Audio": "audio", "Computación": "computers", "Pantallas": "displays"},
@@ -40,6 +42,13 @@ def form_code(column: str, selected: str) -> int:
     if value is None or value not in CATEGORY_CODES[column]:
         raise ValueError("Selecciona una opción válida para todos los campos.")
     return CATEGORY_CODES[column][value]
+
+
+def load_model_evaluation() -> dict | None:
+    try:
+        return json.loads(EVALUATION_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
 
 
 @app.route("/")
@@ -167,6 +176,7 @@ def dashboard():
         revenue_prediction=round(revenue_prediction, 2),
         demand_peak=round(demand_peak, 2),
         horizon_days=horizon_days,
+        evaluation=load_model_evaluation(),
         alerts=alerts,
         recommendations=recommendations
     )
